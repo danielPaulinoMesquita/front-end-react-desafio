@@ -1,25 +1,28 @@
-import logo from './logo.svg';
 import './App.css';
+import React from 'react';
+import 'bootswatch/dist/darkly/bootstrap.css'
+import Rotas from "./rotas";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import 'toastr/build/toastr.min'
+import 'toastr/build/toastr.css'
+
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import Navbar from "./components/navbar";
+
+
+class App extends React.Component {
+    render(){
+        return (
+            <>
+                <Navbar></Navbar>
+                <div className="container">
+                    <Rotas></Rotas>
+                </div>
+            </>
+        );
+    }
 }
 
 export default App;
