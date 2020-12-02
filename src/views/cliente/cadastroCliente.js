@@ -18,12 +18,6 @@ import { Button } from 'primereact/button';
 
 class CadastroClientes extends React.Component{
 
-    Telefone = {
-        id: null,
-        numero: '',
-        tipoTelefone: ''
-    }
-
     state = {
         id: null,
         nome: '',
@@ -124,13 +118,17 @@ class CadastroClientes extends React.Component{
     }
 
     editar = (id) => {
-        this.props.history.push(`cadastro-clientes/${id}`);
+        this.props.history.push(`cadastroCliente/${id}`);
+    }
+
+    clienteDetalhe = (id) => {
+        this.props.history.push(`cliente-detail/${id}`);
     }
 
     deletar = () => {
         this.service
             .deletar(this.state.clienteDeletar.id)
-            .then(response => {
+            .then(() => {
                 const clientes = this.state.clientes;
                 const index = clientes.indexOf(this.state.clienteDeletar);
                 clientes.splice(index,1);
@@ -311,7 +309,8 @@ class CadastroClientes extends React.Component{
                             <TabelaCliente
                                 clientes={this.state.clientes}
                                 editAction={this.editar}
-                                deleteAction={this.abrirConfirmacao}/>
+                                deleteAction={this.abrirConfirmacao}
+                                consultaAction={this.clienteDetalhe}/>
                         </div>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ class Home extends React.Component{
                     <p className="lead">
                         <a className="btn btn-danger btn-lg"
                            href="#/clientes"
-                           role="button"><i className="pi pi-dollar p-mr-2"></i> Acessar Clientes</a>
+                           role="button"><i className="pi pi-users p-mr-3"></i> Acessar Clientes</a>
                     </p>
             </div>
         )

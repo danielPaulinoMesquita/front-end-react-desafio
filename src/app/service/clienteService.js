@@ -50,7 +50,8 @@ export default class  ClienteService extends ApiService{
     }
 
     obterClientesPorId(id){
-        return this.get(`/${id}`)
+        console.log("dentro do metodo id",id)
+        return this.getId(id)
     }
 
     obterClientes(){

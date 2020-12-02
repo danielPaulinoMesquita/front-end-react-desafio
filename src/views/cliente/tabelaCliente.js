@@ -4,7 +4,7 @@ export default  props => {
 
     const  rows = props.clientes.map( cliente =>{
         return (
-            <tr key={cliente.id}>
+            <tr key={cliente.id} onClick={() => props.consultaAction(cliente.id)}>
                 <td>{cliente.nome}</td>
                 <td>{cliente.cpf}</td>
                 {/*<td>{cliente.emails}</td>*/}
