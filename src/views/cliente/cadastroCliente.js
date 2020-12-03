@@ -2,8 +2,7 @@ import React from 'react'
 
 import Card from "../../components/card";
 import FormGroup from "../../components/formGroup";
-import SelectMenu from '../../components/selectMenu'
-
+import SelectMenu from '../../components/selectMenu';
 import {withRouter} from 'react-router-dom';
 import * as messages from '../../components/toastr'
 
@@ -14,6 +13,7 @@ import TabelaCliente from './tabelaCliente';
 
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
+import { InputMask} from "primereact/inputmask";
 
 
 class CadastroClientes extends React.Component{
@@ -51,7 +51,6 @@ class CadastroClientes extends React.Component{
                 let clientesJson = [];
                 json.forEach( cliente =>{
                     clientesJson.push(cliente)
-                    console.log("cliente: ",clientesJson)
                 })
 
                 this.setState({clientes: clientesJson})
@@ -59,29 +58,28 @@ class CadastroClientes extends React.Component{
             messages.mensagemErro(`Não foi possível buscar clientes`);
         })
 
-        const params = this.props.match.params;
-        if (params.id){
-            this.service.obterClientesPorId(params.id)
-                .then(response => {
-                    this.setState({...response.data, atualizando: true})
-                }).catch(error => {
-                messages.mensagemErro(error.response.data);
-            })
-        }
-
-        console.log('params: ', params);
+        // const params = this.props.match.params;
+        // if (params.id){
+        //     this.service.obterClientesPorId(params.id)
+        //         .then(response => {
+        //             this.setState({...response.data, atualizando: true})
+        //         }).catch(error => {
+        //         messages.mensagemErro(error.response.data);
+        //     })
+        // }
+        //
+        // console.log('params: ', params);
     }
 
 
     submit = () => {
         const usuarioLogado = LocalStorageService.obterItem('_usuario_logado');
 
-        // --> NOVA FORMA, USANDO DESTRUCTING
         const {nome, cpf, email, cep, logradouro, bairro,
             cidade, uf, complemento, tipo, telefone} = this.state;
 
         const cliente = {nome, cpf, email, cep, logradouro, bairro,
-            cidade, uf, complemento, tipo, telefone};
+            cidade, uf, complemento, tipo, telefone, emails: [], telefones: []};
 
         try {
             this.service.validar(cliente);
@@ -91,14 +89,27 @@ class CadastroClientes extends React.Component{
             return false;
         }
 
-        this.service
-            .salvar(cliente)
-            .then(() => {
-                this.props.history.push('/clientes')
-                messages.mensagemSucesso('Cliente cadastrado com Sucesso!');
-            }).catch(error =>{
-            messages.mensagemErro(error.response.data);
+        const clienteSalvar = {nome, cpf, cep, logradouro, bairro,
+            cidade, uf, complemento, emails: [], telefones: []};
+
+        clienteSalvar.telefones.push({
+            numero: cliente.tipo,
+            tipoTelefone: cliente.telefone
         })
+
+        clienteSalvar.emails.push({
+            email: cliente.email
+        })
+
+        // this.service
+        //     .salvar(cliente)
+        //     .then(() => {
+        //         this.props.history.push('/clientes')
+        //         messages.mensagemSucesso('Cliente cadastrado com Sucesso!');
+        //     }).catch(error =>{
+        //     messages.mensagemErro(error.response.data);
+        // })
+        console.log("Testando o submit salvar", clienteSalvar);
     }
 
     atualizar = () => {
@@ -109,16 +120,24 @@ class CadastroClientes extends React.Component{
             cidade, uf, complemento, tipo, telefone};
 
         this.service.atualizar(cliente)
-            .then(() => {
-                this.props.history.push('/consulta-clientes')
+            .then((res) => {
+                const clienteAtualizado = res.data;
+                console.log("cliente", clienteAtualizado);
                 messages.mensagemSucesso('Cliente Atualizado com Sucesso!');
             }).catch(error =>{
-            messages.mensagemErro(error.response.data);
+            messages.mensagemErro(error.response);
         })
     }
 
     editar = (id) => {
-        this.props.history.push(`cadastroCliente/${id}`);
+        this.service.obterClientesPorId(id).then(res => {
+            const cliente = res.data;
+            console.log(cliente);
+
+            this.setState({...cliente, atualizando: true});
+        }).catch(error => {
+            messages.mensagemErro(error.response);
+        })
     }
 
     clienteDetalhe = (id) => {
@@ -172,6 +191,7 @@ class CadastroClientes extends React.Component{
     render() {
         const tipos = this.service.obterListaTipos();
         const ufs = this.service.obterListaUfs();
+        const isCelular = this.state.tipo === 'CELULAR';
 
         return (
             <Card title={this.state.atualizando ? "Atualização do Cliente" : "Cadastro de Cliente"}>
@@ -187,10 +207,12 @@ class CadastroClientes extends React.Component{
                     </div>
                     <div className="col-md-6">
                         <FormGroup id="inputCpf" label="Cpf: *">
-                            <input id="inputCpf"
+                            <InputMask id="inputCpf"
                                    type="text"
                                    className="form-control"
                                    name="cpf"
+                                   mask="999.999.999-99"
+                                   unmask={true}
                                    value={this.state.cpf}
                                    onChange={this.handleChange}/>
                         </FormGroup>
@@ -208,7 +230,7 @@ class CadastroClientes extends React.Component{
                         </FormGroup>
                     </div>
                     <div className="col-md-4">
-                        <FormGroup id="inputTipo" label="Tipo: *">
+                        <FormGroup id="inputTipo" label="Tipo Telefone: *">
                             <SelectMenu
                                 id="inputTipo"
                                 lista={tipos}
@@ -220,21 +242,35 @@ class CadastroClientes extends React.Component{
                     </div>
                     <div className="col-md-4">
                         <FormGroup id="inputTelefone" label="Telefone: *">
-                            <input id="inputTelefone"
-                                   type="text"
-                                   className="form-control"
-                                   name="telefone"
-                                   value={this.state.telefone}
-                                   onChange={this.handleChange}/>
+                            { isCelular ?
+                                <InputMask id="inputTelefone"
+                                           type="text"
+                                           className="form-control"
+                                           name="telefone"
+                                           mask="(99)99999-9999"
+                                           unmask={true}
+                                           value={this.state.telefone}
+                                           onChange={this.handleChange}/> :
+                                <InputMask id="inputTelefone"
+                                           type="text"
+                                           className="form-control"
+                                           name="telefone"
+                                           mask="(99)9999-9999"
+                                           unmask={true}
+                                           value={this.state.telefone}
+                                           onChange={this.handleChange}/>
+                            }
                         </FormGroup>
                     </div>
                 </div>
                 <div className="row">
                     <div className="col-md-4">
                         <FormGroup id="inputCep" label="Cep: *">
-                            <input id="inputCep"
+                            <InputMask id="inputCep"
                                    type="text"
                                    className="form-control"
+                                   mask="99999-999"
+                                   unmask={true}
                                    name="cep"
                                    value={this.state.cep}
                                    onChange={this.handleChange}/>
@@ -258,7 +294,7 @@ class CadastroClientes extends React.Component{
                                    className="form-control"
                                    name="bairro"
                                    value={this.state.bairro}
-                                   disabled/>
+                                   onChange={this.handleChange}/>
                         </FormGroup>
                     </div>
                 </div>
