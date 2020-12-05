@@ -49,8 +49,6 @@ class CadastroClientes extends React.Component{
         const usuarioLogado = LocalStorageService.obterItem('_usuario_logado');
         this.setState({perfilUsuario:usuarioLogado.perfil})
 
-        console.log("usuario logado no cadastro: ",usuarioLogado)
-
         this.service.obterClientes()
             .then(response => {
                 const json = response.data;
@@ -68,6 +66,10 @@ class CadastroClientes extends React.Component{
 
 
     submit = () => {
+        if(this.state.perfilUsuario ==="COMUM"){
+            messages.mensagemErro(`Você não tem permissão`);
+            return false
+        }
 
         const {nome, cpf, email, cep, logradouro, bairro,
             cidade, uf, complemento, tipo, telefone} = this.state;
@@ -131,6 +133,11 @@ class CadastroClientes extends React.Component{
     }
 
     editar = (id) => {
+        if(this.state.perfilUsuario ==="COMUM"){
+            messages.mensagemErro(`Você não tem permissão`);
+            return false
+        }
+
         this.service.obterClientesPorId(id).then(res => {
             const cliente = res.data;
             this.setState({...cliente, atualizando: true});
@@ -144,6 +151,11 @@ class CadastroClientes extends React.Component{
     }
 
     deletar = () => {
+        if(this.state.perfilUsuario ==="COMUM"){
+            messages.mensagemErro(`Você não tem permissão`);
+            return false
+        }
+
         this.service
             .deletar(this.state.clienteDeletar.id)
             .then(() => {
@@ -161,7 +173,6 @@ class CadastroClientes extends React.Component{
 
 
     abrirConfirmacao = (cliente) => {
-        console.log(cliente);
         this.setState({mostrarMensagemConfirmacao: true, clienteDeletar: cliente})
     }
 
@@ -193,7 +204,7 @@ class CadastroClientes extends React.Component{
         const isCelular = this.state.tipo === 'CELULAR';
 
         return (
-            <Card title={this.state.atualizando ? "Atualização do Cliente" : "Cadastro de Cliente"}>
+        <Card title={this.state.atualizando ? "Atualização do Cliente" : "Cadastro de Cliente"}>
                 <div className="row">
                     <div className="col-md-6">
                         <FormGroup id="inputNome" label="Nome: *">
@@ -336,6 +347,7 @@ class CadastroClientes extends React.Component{
                         </button>
                     </div>
                 </div>
+
                 <br/>
                 <div className="row">
                     <div className="col-md-12">

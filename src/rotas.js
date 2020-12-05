@@ -2,11 +2,10 @@ import React from 'react'
 
 import Login from "./views/login";
 
-import { Route, Switch, HashRouter, Redirect } from 'react-router-dom'
+import {HashRouter, Redirect, Route, Switch} from 'react-router-dom'
 import Home from "./views/home";
 import CadastroClientes from "./views/cliente/cadastroCliente";
 import DetalheCliente from "./views/cliente/detalheCliente";
-import AuthService from "./app/service/authService";
 import {AuthConsumer} from "./provedorAutenticacao";
 
 function RotaAutenticada ({component: Component, isUsuarioAutenticado, ...props}){

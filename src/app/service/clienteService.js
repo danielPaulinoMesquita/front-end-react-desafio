@@ -50,7 +50,6 @@ export default class  ClienteService extends ApiService{
     }
 
     obterClientesPorId(id){
-        console.log("dentro do metodo id",id)
         return this.getId(id)
     }
 
@@ -70,7 +69,7 @@ export default class  ClienteService extends ApiService{
         }
 
         if(!cliente.email){
-            erros.push("Informe ao um Email")
+            erros.push("Informe ao menos um Email")
         }else if(!cliente.email.match(/^[a-z0-9.]+@[a-z0-9]+\.[a-z]/)){
             erros.push('Informe um Email válido. ')
         }

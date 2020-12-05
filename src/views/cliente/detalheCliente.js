@@ -41,8 +41,6 @@ class DetalheCliente extends React.Component{
                 messages.mensagemErro(error.response);
             })
          }
-
-        console.log('params: ', params);
     }
 
     listaTelefones(props) {
