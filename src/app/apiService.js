@@ -15,6 +15,11 @@ class ApiService{
         return httpClient.post(requestUrl, objeto);
     }
 
+    postLogin(objeto){
+        const requestUrl = `${this.apiurl}`
+        return httpClient.post(requestUrl, objeto);
+    }
+
     put(url, objeto){
         const requestUrl = `${this.apiurl}${url}`
         return httpClient.put(requestUrl, objeto);

@@ -11,7 +11,7 @@ export default class  ClienteService extends ApiService{
         return [
             {label: 'Selecione ...', value:''},
             {label: 'Comercial', value:'COMERCIAL'},
-            {label: 'Residencial', value:'RESINDECIAL'},
+            {label: 'Residencial', value:'RESIDENCIAL'},
             {label: 'Celular', value:'CELULAR'},
         ]
     }
@@ -62,12 +62,17 @@ export default class  ClienteService extends ApiService{
         const erros = [];
 
         if(!cliente.nome){
-            console.log(cliente.nome)
             erros.push("Informe o Nome");
         }
 
         if(!cliente.cpf){
             erros.push("Informe o Cpf")
+        }
+
+        if(!cliente.email){
+            erros.push("Informe ao um Email")
+        }else if(!cliente.email.match(/^[a-z0-9.]+@[a-z0-9]+\.[a-z]/)){
+            erros.push('Informe um Email válido. ')
         }
 
         if(!cliente.cep){
@@ -91,7 +96,7 @@ export default class  ClienteService extends ApiService{
         }
 
         if(!cliente.telefone){
-            erros.push("Informe o Telefone")
+            erros.push("Informe ao menos um Telefone")
         }
 
         if(erros && erros.length > 0){

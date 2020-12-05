@@ -5,6 +5,8 @@ import FormGroup from "../components/formGroup";
 import { withRouter } from 'react-router-dom';
 import {mensagemErro} from "../components/toastr";
 import UsuarioService from "../app/service/usuarioService";
+import LocalStorageService from "../app/service/localStorageService";
+import {AuthContext} from "../provedorAutenticacao";
 
 
 class Login extends React.Component {
@@ -20,14 +22,17 @@ class Login extends React.Component {
     }
 
     entrar = () =>{
+        console.log("usuario: "+this.state.usuario+" , senha: "+this.state.senha)
+
         this.service.autenticar({
             usuario: this.state.usuario,
             senha: this.state.senha
         }).then( response => {
-           // this.context.iniciarSessao(response.data);
-            this.props.history.push("/home")
+            console.log("usuario autenticado: ", response.data);
+           this.context.iniciarSessao(response.data);
+           this.props.history.push("/home")
         }).catch(erro => {
-            mensagemErro(erro.response.data);
+            // mensagemErro(erro.response.data);
         })
     }
 
@@ -73,4 +78,6 @@ class Login extends React.Component {
         )
     }
 }
+
+Login.contextType = AuthContext
 export default withRouter(Login);

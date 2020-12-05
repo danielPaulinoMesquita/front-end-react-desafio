@@ -2,22 +2,44 @@ import React from 'react'
 
 import Login from "./views/login";
 
-import { Route, Switch, HashRouter } from 'react-router-dom'
+import { Route, Switch, HashRouter, Redirect } from 'react-router-dom'
 import Home from "./views/home";
 import CadastroClientes from "./views/cliente/cadastroCliente";
 import DetalheCliente from "./views/cliente/detalheCliente";
+import AuthService from "./app/service/authService";
+import {AuthConsumer} from "./provedorAutenticacao";
 
-function Rotas() {
+function RotaAutenticada ({component: Component, isUsuarioAutenticado, ...props}){
+    return (
+        <Route {...props} render={(componentProps) =>{
+            if(isUsuarioAutenticado){
+                return (
+                    <Component {...componentProps}/>
+                )
+            }else {
+                return (
+                    <Redirect to={{pathname:'/login', state: {from: componentProps.location}}}/>
+                )
+            }
+        }}/>
+    );
+}
+
+function Rotas(props) {
     return (
         <HashRouter>
             <Switch>
                 <Route path="/login" component={Login}/>
-                <Route path="/home" component={Home}/>
-                <Route path="/clientes" component={CadastroClientes}/>
-                <Route path="/cliente-detail/:id" component={DetalheCliente}/>
+                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/home" component={Home}/>
+                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/clientes" component={CadastroClientes}/>
+                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/cliente-detail/:id" component={DetalheCliente}/>
             </Switch>
         </HashRouter>
     )
 }
 
-export default Rotas
+export default () => (
+    <AuthConsumer>
+        {(context) => (<Rotas isUsuarioAutenticado={context.isAutenticado}/>)}
+    </AuthConsumer>
+)

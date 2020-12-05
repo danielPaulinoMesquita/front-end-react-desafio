@@ -47,7 +47,7 @@ class DetalheCliente extends React.Component{
 
     listaTelefones(props) {
         const content = props.telefones.map((telefone) =>
-            <button className="list-group-item list-group-item-action">{telefone.tipoTelefone} {telefone.numero}</button>
+            <button key={telefone.id} className="list-group-item list-group-item-action">{telefone.tipoTelefone +": "+ telefone.numero}</button>
         )
         return (
             <>

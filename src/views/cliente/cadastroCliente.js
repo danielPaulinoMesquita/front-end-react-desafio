@@ -11,9 +11,9 @@ import LocalStorageService from "../../app/service/localStorageService";
 
 import TabelaCliente from './tabelaCliente';
 
-import { Dialog } from 'primereact/dialog';
-import { Button } from 'primereact/button';
-import { InputMask} from "primereact/inputmask";
+import {Dialog} from 'primereact/dialog';
+import {Button} from 'primereact/button';
+import {InputMask} from "primereact/inputmask";
 
 
 class CadastroClientes extends React.Component{
@@ -36,7 +36,8 @@ class CadastroClientes extends React.Component{
         clientes: [],
         clienteDeletar: {},
         mostrarMensagemConfirmacao: false,
-        atualizando: false
+        atualizando: false,
+        perfilUsuario:''
     }
 
     constructor() {
@@ -45,6 +46,11 @@ class CadastroClientes extends React.Component{
     }
 
     componentDidMount() {
+        const usuarioLogado = LocalStorageService.obterItem('_usuario_logado');
+        this.setState({perfilUsuario:usuarioLogado.perfil})
+
+        console.log("usuario logado no cadastro: ",usuarioLogado)
+
         this.service.obterClientes()
             .then(response => {
                 const json = response.data;
@@ -54,26 +60,14 @@ class CadastroClientes extends React.Component{
                 })
 
                 this.setState({clientes: clientesJson})
-            }).catch(error => {
+            }).catch(() => {
             messages.mensagemErro(`Não foi possível buscar clientes`);
         })
 
-        // const params = this.props.match.params;
-        // if (params.id){
-        //     this.service.obterClientesPorId(params.id)
-        //         .then(response => {
-        //             this.setState({...response.data, atualizando: true})
-        //         }).catch(error => {
-        //         messages.mensagemErro(error.response.data);
-        //     })
-        // }
-        //
-        // console.log('params: ', params);
     }
 
 
     submit = () => {
-        const usuarioLogado = LocalStorageService.obterItem('_usuario_logado');
 
         const {nome, cpf, email, cep, logradouro, bairro,
             cidade, uf, complemento, tipo, telefone} = this.state;
@@ -93,36 +87,43 @@ class CadastroClientes extends React.Component{
             cidade, uf, complemento, emails: [], telefones: []};
 
         clienteSalvar.telefones.push({
-            numero: cliente.tipo,
-            tipoTelefone: cliente.telefone
+            numero: cliente.telefone,
+            tipoTelefone: cliente.tipo
         })
 
-        clienteSalvar.emails.push({
-            email: cliente.email
+        clienteSalvar.emails.push(cliente.email);
+
+        this.service
+            .salvar(clienteSalvar)
+            .then((clienteSalvo) => {
+                const clientes = this.state.clientes;
+                clientes.push(clienteSalvo.data);
+                this.setState({clientes: clientes })
+                messages.mensagemSucesso('Cliente cadastrado com Sucesso!');
+            }).catch(error =>{
+            messages.mensagemErro(error.response.data);
         })
 
-        // this.service
-        //     .salvar(cliente)
-        //     .then(() => {
-        //         this.props.history.push('/clientes')
-        //         messages.mensagemSucesso('Cliente cadastrado com Sucesso!');
-        //     }).catch(error =>{
-        //     messages.mensagemErro(error.response.data);
-        // })
-        console.log("Testando o submit salvar", clienteSalvar);
     }
 
     atualizar = () => {
-        const {nome, cpf, email, cep, logradouro, bairro,
+        const {id, nome, cpf, email, cep, logradouro, bairro,
             cidade, uf, complemento, tipo, telefone} = this.state;
 
-        const cliente = {nome, cpf, email, cep, logradouro, bairro,
+        const cliente = {id, nome, cpf, email, cep, logradouro, bairro,
             cidade, uf, complemento, tipo, telefone};
 
         this.service.atualizar(cliente)
             .then((res) => {
                 const clienteAtualizado = res.data;
-                console.log("cliente", clienteAtualizado);
+                const listaClientes = this.state.clientes;
+                listaClientes.map(cliente => {
+                    if (cliente.id === clienteAtualizado.id){
+                        cliente = clienteAtualizado;
+                    }
+                    return  cliente;
+                })
+                this.setState({clientes: listaClientes});
                 messages.mensagemSucesso('Cliente Atualizado com Sucesso!');
             }).catch(error =>{
             messages.mensagemErro(error.response);
@@ -132,8 +133,6 @@ class CadastroClientes extends React.Component{
     editar = (id) => {
         this.service.obterClientesPorId(id).then(res => {
             const cliente = res.data;
-            console.log(cliente);
-
             this.setState({...cliente, atualizando: true});
         }).catch(error => {
             messages.mensagemErro(error.response);
@@ -155,7 +154,7 @@ class CadastroClientes extends React.Component{
 
                 messages.mensagemSucesso('Cliente deletado com sucesso!')
             })
-            .catch(error => {
+            .catch(() => {
                 messages.mensagemErro('Ocorreu um erro ao tentar deletar o Cliente')
             })
     }
@@ -278,9 +277,8 @@ class CadastroClientes extends React.Component{
                     </div>
                     <div className="col-md-4">
                         <FormGroup id="inputCidade" label="Cidade: *">
-                            <SelectMenu
-                                id="inputCidade"
-                                lista={tipos}
+                            <input id="inputCidade"
+                                type="text"
                                 className="form-control"
                                 name="cidade"
                                 value={this.state.cidade}
